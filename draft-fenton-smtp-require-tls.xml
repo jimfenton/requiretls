@@ -15,10 +15,11 @@
 <!ENTITY RFC5751 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5751.xml">
 <!ENTITY RFC3207 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3207.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
+<!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY RFC7672 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7672.xml">
 <!ENTITY RFC1939 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1939.xml">
 <!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
-<!ENTITY I-D.ietf-uta-mta-sts SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-uta-mta-sts-02.xml">
+<!ENTITY I-D.ietf-uta-mta-sts SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-uta-mta-sts-07.xml">
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 <!-- used by XSLT processors -->
@@ -151,7 +152,7 @@
      used, interference in the SMTP protocol to prevent TLS from being
      negotiated (presumably followed by eavesdropping), and insertion
      of a man-in-the-middle attacker taking advantage of the lack of
-     server authentication by the client. Attacks are more described
+     server authentication by the client. Attacks are described
      in more detail in the Security Considerations section of this
      document.</t>
 
@@ -161,10 +162,9 @@
      characteristics, or conversely that delivery should be
      prioritized over ability to negotiate TLS. For messages requiring
      TLS negotiation, it also requires that the SMTP server advertise
-     that it also supports REQUIRETLS, in effect promising that it
-     will honor the requirement to require TLS transmission and
-     REQUIRETLS support for onward transmission of messages specifying
-     that requirement.</t>
+     that it supports REQUIRETLS, in effect promising that it
+     will honor the requirement to enforce TLS transmission and
+     REQUIRETLS support for onward transmission of those messages.</t>
 
      <section title="Requirements Language">
        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -199,9 +199,10 @@
      <list style="symbols">
        <t>The session itself MUST employ TLS transmission, unless the
        NO parameter is specified.</t>
-       <t>Any server authentication requirements specified as an option to
+       <t>Any server authentication requirements included as an option to
        the REQUIRETLS option (see below) MUST have been satisfied in
        establishing the current session.</t>
+       <t>The SMTP server advertises that it supports REQUIRETLS.</t>
      </list>
      </t>
 
@@ -265,9 +266,10 @@
 
        <list style="numbers">
 
-	 <t>Look up the SMTP server to which the message is to be
-	 sent. If the DNSSEC option is included in the message tag,
-	 the MX record lookups in this process MUST use DNSSEC
+	 <t>Look up the SMTP server to which the message is to be sent
+	 as described in <xref target="RFC5321"></xref> Section
+	 5.1. If the DNSSEC option is included in the message tag, the
+	 MX record lookups in this process MUST use DNSSEC
 	 verification and the response(s) MUST be DNSSEC-signed in
 	 order to ensure the integrity of the <xref
 	 target="RFC6125">resource identifier</xref> used to
@@ -279,7 +281,9 @@
 	 
 	 <t>Establish a TLS-protected SMTP session with its peer SMTP
 	 server and authenticate the server's certificate with the
-	 specified authentication method.</t>
+	 specified authentication method as specified in <xref
+	 target="RFC6125"></xref> or <xref target="RFC6698"></xref> as
+	 applicable.</t>
 
 	 <t>The SMTP client SHOULD also require that meaningfully
 	 secure cipher algorithms and key lengths be negotiated with
@@ -327,15 +331,19 @@
 	 tagged with REQUIRETLS=NO, the sending (client) MTA MUST:
 	 <list style="symbols">
 	   <t>Look up the SMTP server to which the message is to be
-	   sent as described in <xref target="RFC5321"></xref>.</t>
+	   sent as described in <xref target="RFC5321"></xref> Section
+	   5.1.</t>
+	   
 	   <t>Open an SMTP session with the peer SMTP server using the
 	   EHLO verb. Attempt to negotiate STARTTLS if possible, and
 	   follow any policy published by the recipient domain, but do
 	   not fail if this is unsuccessful.</t>
+	   
 	   <t>If the server does not advertise the REQUIRETLS
 	   capability, send the message in the usual manner (without
 	   the REQUIRETLS option, because the server will not understand the
 	   option).</t>
+	   
 	   <t>If the server advertises the REQUIRETLS capability, send
 	   the message with the REQUIRETLS=NO option.</t>
 	 </list>
@@ -420,8 +428,9 @@
        operation that redirects the original message, in some cases to
        multiple recipients. The requirement to preserve the REQUIRETLS
        tag and options therefore does not extend to mailing
-       lists. REQUIRETLS users SHOULD use caution when sending to
-       mailing lists and MUST NOT assume that REQUIRETLS applies to
+       lists. REQUIRETLS users SHOULD be made aware of this limitation
+       so that they use caution when sending to
+       mailing lists and do not assume that REQUIRETLS applies to
        messages from the list operator to list members.</t>
 
        <t>Mailing list operators MAY apply REQUIRETLS requirements in
@@ -621,6 +630,9 @@
      &RFC4035;
      &RFC5248;
      &RFC5321;
+     &RFC6125;
+     &RFC6698;
+
      <reference anchor="MailParams"
                 target="http://www.iana.org/assignments/mail-parameters">
        <front>
@@ -657,7 +669,6 @@
      &RFC4033;
      &RFC4880;
      &RFC5751;
-     &RFC6125;
      &RFC7672;
      &I-D.ietf-uta-mta-sts;
      
