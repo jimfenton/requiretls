@@ -46,7 +46,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-fenton-smtp-require-tls-03" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-00" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -68,7 +68,7 @@
 
      <address>
        <postal>
-         <street>704 Benvenue Avenue</street>
+         <street> </street>
          <city>Los Altos</city>
          <region>California</region>
          <code>94024</code>
@@ -553,6 +553,15 @@
      <section anchor="history" title="Revision History">
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
+
+       <section title="Changes since fenton-03 Draft">
+	 <t><list style="symbols">
+	   <t>Wording improvements from Rolf Sonneveld review 22 July
+	   2017</t>
+	   <t>A few copy edits</t>
+	   <t>Conversion from individual to UTA WG draft</t>
+	 </list></t>
+       </section>
 
        <section title="Changes Since -02 Draft">
 	 <t><list style="symbols">
