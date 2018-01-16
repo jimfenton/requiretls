@@ -19,7 +19,9 @@
 <!ENTITY RFC7672 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7672.xml">
 <!ENTITY RFC1939 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1939.xml">
 <!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
-<!ENTITY I-D.ietf-uta-mta-sts SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-uta-mta-sts-07.xml">
+<!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
+<!ENTITY I-D.ietf-uta-mta-sts SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-uta-mta-sts-14.xml">
+<!ENTITY I-D.ietf-uta-email-deep SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-uta-email-deep-12.xml">
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 <!-- used by XSLT processors -->
@@ -46,7 +48,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-00" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-01" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -81,7 +83,7 @@
      </address>
    </author>
 
-   <date year="2017" />
+   <date year="2018" />
 
    <!-- If the month and year are both specified and are the current ones, xml2rfc will fill 
         in the current day for you. If only the current year is specified, xml2rfc will fill 
@@ -112,14 +114,16 @@
      <t>The SMTP STARTTLS option, used in negotiating transport-level
      encryption of SMTP connections, is not as useful from a security
      standpoint as it might be because of its opportunistic nature;
-     message delivery is prioritized over security. This document
-     describes a complementary SMTP service extension, REQUIRETLS. If
-     the REQUIRETLS option is used when sending a message, it asserts
-     a request on the part of the message sender to override the
-     default negotiation of TLS, either by requiring that TLS be
-     negotiated when the message is relayed, or by requesting that
-     policy mechanisms such as SMTP STS and DANE be ignored when
-     relaying a high priority message.</t>
+     message delivery is, by default, prioritized over security. This
+     document describes an SMTP service extension, REQUIRETLS, and
+     message header field, Require-TLS. If the REQUIRETLS option or
+     Require-TLS message header field is used when sending a message,
+     it asserts a request on the part of the message sender to
+     override the default negotiation of TLS, either by requiring that
+     TLS be negotiated when the message is relayed, or by requesting
+     that recipient-side policy mechanisms such as MTA-STS and DANE be
+     ignored when relaying a message for which security is
+     unimportant.</t>
    </abstract>
 
  </front>
@@ -135,42 +139,50 @@
      client and server; if this is not possible, the message is sent
      without transport encryption. Furthermore, it is common practice
      for the client to negotiate TLS even if the SMTP server's
-     certificate fails to authenticate it.</t>
+     certificate is invalid.</t>
 
      <t>Policy mechanisms such as <xref target="RFC7672">DANE</xref>
-     and <xref target="I-D.ietf-uta-mta-sts">SMTP STS</xref> may
+     and <xref target="I-D.ietf-uta-mta-sts">MTA-STS</xref> may
      impose requirements for the use of TLS for email destined for
      some domains. However, such policies do not allow the sender to
      specify which messages are more sensitive and require
-     transport-level encryption, and which ones are urgent and ought
-     to be relayed even if TLS cannot be negotiated
+     transport-level encryption, and which ones are less sensitive and
+     ought to be relayed even if TLS cannot be negotiated
      successfully.</t>
 
      <t>The default opportunistic nature of SMTP TLS enables several
      "on the wire" attacks on SMTP security between MTAs. These
      include passive eavesdropping on connections for which TLS is not
      used, interference in the SMTP protocol to prevent TLS from being
-     negotiated (presumably followed by eavesdropping), and insertion
-     of a man-in-the-middle attacker taking advantage of the lack of
+     negotiated (presumably accompanied by eavesdropping), and insertion
+     of a man-in-the-middle attacker exploiting the lack of
      server authentication by the client. Attacks are described
      in more detail in the Security Considerations section of this
      document.</t>
 
-     <t>The REQUIRETLS SMTP service extension allows the SMTP client
-     to specify that a given message sent during a particular session
-     MUST be sent over a TLS protected session with specified security
-     characteristics, or conversely that delivery should be
-     prioritized over ability to negotiate TLS. For messages requiring
-     TLS negotiation, it also requires that the SMTP server advertise
+     <t>REQUIRETLS consists of two mechanisms: an SMTP service
+     extension and a message header field. The service extension is
+     used to specify that a given message sent during a particular session
+     MUST be sent over a TLS-protected session with specified security
+     characteristics. It also requires that the SMTP server advertise
      that it supports REQUIRETLS, in effect promising that it
      will honor the requirement to enforce TLS transmission and
      REQUIRETLS support for onward transmission of those messages.</t>
 
+     <t>The Require-TLS message header field is used to convey a
+     request to ignore recipient-side policy mechanisms such as
+     MTA-STS and DANE, thereby prioritizing delivery over ability to
+     negotiate TLS. Unlike the service extension, the Require-TLS
+     header field allows the message to transit through one or more
+     MTAs that do not support REQUIRETLS.</t>
+
      <section title="Requirements Language">
-       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-       document are to be interpreted as described in <xref
-       target="RFC2119">RFC 2119</xref>.</t>
+       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
+       "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+       RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
+       interpreted as described in BCP 14 <xref target="RFC2119" />
+       <xref target="RFC8174" /> when, and only when, they appear in
+       all capitals, as shown here.</t>
      </section>
    </section>
 
@@ -192,17 +204,16 @@
 
      <t>In order to specify REQUIRETLS treatment for a given message,
      the REQUIRETLS option is specified on the MAIL FROM command when
-     that message is transmitted. With the exception of REQUIRETLS=NO
-     (described below), this option MUST only be specified in the
+     that message is transmitted. This option MUST only be specified in the
      context of an SMTP session meeting the security requirements that
      have been specified:
      <list style="symbols">
-       <t>The session itself MUST employ TLS transmission, unless the
-       NO parameter is specified.</t>
+       <t>The session itself MUST employ TLS transmission.</t>
        <t>Any server authentication requirements included as an option to
        the REQUIRETLS option (see below) MUST have been satisfied in
        establishing the current session.</t>
-       <t>The SMTP server advertises that it supports REQUIRETLS.</t>
+       <t>Following the negotiation of STARTTLS, the SMTP server MUST
+       advertise in the subsequent EHLO response that it supports REQUIRETLS.</t>
      </list>
      </t>
 
@@ -219,9 +230,7 @@
        <t>CHAIN - The certificate presented by the SMTP server MUST
        verify successfully in a trust chain leading to a certificate
        trusted by the SMTP client. The choice of trusted (root)
-       certificates by the client is at their own discretion. The
-       client MAY choose to use the certificate set maintained by the
-       CA/B forum [citation needed] for this purpose.</t>
+       certificates by the client is at their own discretion.</t>
 
        <t>DANE - The certificate presented by the SMTP server MUST
        verify succesfully using DANE as specified in <xref
@@ -231,13 +240,6 @@
        used to locate the SMTP server must be <xref
        target="RFC4035">DNSSEC</xref> signed and
        valid.</t>
-
-       <t>NO - The SMTP client SHOULD attempt to send the message
-       regardless of its ability to negotiate STARTTLS with the SMTP
-       server, ignoring policy-based mechanisms, if any, asserted by the
-       recipient domain. Nevertheless, the client MAY negotiate
-       STARTTLS with the server if available. If the NO parameter is
-       present, any other REQUIRETLS parameter MUST NOT be used.</t>
      </list></t>
 
      <t>The CHAIN and DANE parameters are additive; if both are
@@ -248,12 +250,45 @@
      
    </section>
 
+   <section anchor="header_field" title="The Require-TLS Header Field">
+
+     <t>One new message header field, Require-TLS, is defined by this
+     specification. It is used for messages requesting that recipient
+     TLS policy (<xref target="I-D.ietf-uta-mta-sts">MTA-STS</xref> or
+     <xref target="RFC7672">DANE</xref>) be ignored.</t>
+     
+   <t>The Require-TLS header field has a single required parameter:</t>
+
+     <t><list style="symbols">
+      <t>NO - The SMTP client SHOULD attempt to send the message
+      regardless of its ability to negotiate STARTTLS with the SMTP
+      server, ignoring policy-based mechanisms, if any, asserted by
+      the recipient domain. Nevertheless, the client MAY negotiate
+      STARTTLS with the server if available.</t>
+     </list></t>
+
+     <t>More than one instance of the Require-TLS header field MUST
+     NOT appear in a given message.</t>
+
+   </section>
+
    <section anchor="semantics" title="REQUIRETLS Semantics">
      <section anchor="receipt" title="REQUIRETLS Receipt Requirements">
        <t>Upon receipt of the REQUIRETLS option on a MAIL FROM command
        during the receipt of a message, an SMTP server MUST tag that
-       message as needing REQUIRETLS handling with the specified
-       option(s). The manner in which this tagging takes place is
+       message as needing REQUIRETLS handling with the option(s)
+       specified in the REQUIRETLS parameter.</t>
+
+       <t>Upon receipt of a message not specifying the REQUIRETLS
+       option on its MAIL FROM command but containing the Require-TLS
+       header field in its message header, an SMTP server implementing
+       this specification MUST tag that message with the option
+       specified in the Require-TLS header field. If the REQUIRETLS
+       MAIL FROM parameter is specified, the Require-TLS header field
+       MUST be ignored but MAY be included in onward relay of the
+       message.</t>
+
+       <t>The manner in which the above tagging takes place is
        implementation-dependent. If the message is being locally
        aliased and redistributed to multiple addresses, all instances
        of the message MUST be tagged in the same manner.</t>
@@ -261,8 +296,8 @@
      
      <section anchor="sender" title="REQUIRETLS Sender Requirements">
        <section anchor="yestls" title="Sending with TLS Required">
-       <t>When sending a message tagged with REQUIRETLS other than the
-       REQUIRETLS=NO option, the sending (client) MTA MUST:
+       <t>When sending a message tagged as requiring TLS, the sending
+       (client) MTA MUST:
 
        <list style="numbers">
 
@@ -293,16 +328,15 @@
 
        </list></t>
 
-       <t>If any of the above steps fail, the client SHOULD issue a
-       QUIT to the server and repeat steps 2-4 with each host
-       on the recipient domain's list of MX hosts in an attempt to
-       find a mail path that meets the sender's requirements. If there
-       are no more MX hosts or if the MX record lookup is not
-       DNSSEC-protected and DNSSEC verification is required, the
-       client MUST NOT transmit the message and MUST issue an SMTP
-       QUIT command to the server. The client MAY send other,
-       unprotected, messages to that server prior to issuing the QUIT
-       if it has any.</t>
+       <t>If any of the above steps fail, the client MUST issue a QUIT
+       to the server and repeat steps 2-4 with each host on the
+       recipient domain's list of MX hosts in an attempt to find a
+       mail path that meets the sender's requirements. The client MAY
+       send other, unprotected, messages to that server if it has any
+       prior to issuing the QUIT. If there are no more MX hosts or if
+       the MX record lookup is not DNSSEC-protected and DNSSEC
+       verification is required, the client MUST NOT transmit the
+       message to the domain. </t>
        
        <t>Following such a failure, the SMTP client MUST send a
        non-delivery notification to the reverse-path of the failed
@@ -317,7 +351,7 @@
 	 Encryption needed</t>
        </list></t>
 
-       <t>Refer to Section 4. for further requirements regarding
+       <t>Refer to <xref target="errors" /> for further requirements regarding
        non-delivery messages.</t>
 
        <t>If all REQUIRETLS requirements have been met, transmit the
@@ -326,9 +360,9 @@
 
        </section>
        <section anchor="maytls" title="Sending with TLS Optional">
-	 <t>Messages tagged REQUIRETLS=NO are handled differently from
-	 other REQUIRETLS messages, as follows. When sending a message
-	 tagged with REQUIRETLS=NO, the sending (client) MTA MUST:
+	 <t>Messages tagged RequireTLS: NO are handled as
+	 follows. When sending such a message, the sending (client)
+	 MTA MUST:
 	 <list style="symbols">
 	   <t>Look up the SMTP server to which the message is to be
 	   sent as described in <xref target="RFC5321"></xref> Section
@@ -339,27 +373,18 @@
 	   follow any policy published by the recipient domain, but do
 	   not fail if this is unsuccessful.</t>
 	   
-	   <t>If the server does not advertise the REQUIRETLS
-	   capability, send the message in the usual manner (without
-	   the REQUIRETLS option, because the server will not understand the
-	   option).</t>
-	   
-	   <t>If the server advertises the REQUIRETLS capability, send
-	   the message with the REQUIRETLS=NO option.</t>
 	 </list>
 	 </t>
 
-	 <t>Some SMTP servers that are configured to expect STARTTLS
-	 connections as a matter of policy may not accept messages in
+	 <t>Some SMTP servers may be configured to require STARTTLS
+	 connections as a matter of policy and not accept messages in
 	 the absence of STARTTLS. This MUST be expected, and a
 	 non-delivery notification returned to the sender.</t>
 
-	 <t>Messages tagged with the REQUIRETLS=NO option will be sent
-	 without the option to SMTP servers not supporting
-	 REQUIRETLS. REQUIRETLS=NO MAY therefore not persist through
-	 multiple email relay hops.</t>
-
-	 
+	 <t>Since messages tagged with RequireTLS: NO will sometimes
+	 be sent to SMTP servers not supporting REQUIRETLS, that
+	 option will not be uniformly observed by all SMTP relay
+	 hops.</t>
 
        </section>
        
@@ -367,23 +392,31 @@
 
      <section anchor="submission" title="REQUIRETLS Submission">
        <t>An MUA or other agent making the initial introduction of a
-       message to SMTP has authority to decide whether to require TLS,
-       and if so, using what authentication method(s). It does so by
-       issuing the REQUIRETLS option in the MAIL FROM command during
-       message submission. This MAY be done based on a user interface
-       selection, on a header field included in the message, or based
-       on policy. The manner in which the decision to require TLS is
-       made is implementation-dependent and is beyond the scope of
-       this specification.</t>
+       message has authority to decide whether to require TLS, and if
+       so, using what authentication method(s). When TLS is to be
+       required, it MUST do so by negotiating STARTTLS and REQUIRETLS
+       and include the REQUIRETLS option on the MAIL FROM command, as
+       is done for message relay.</t>
+
+       <t>When TLS is not to be required, the sender MUST include the
+       Require-TLS header field in the message. SMTP servers
+       implementing this specification will interpret this header
+       field as described in <xref target="receipt" />.</t>
+
+       <t>In either case, the decision whether to specify REQUIRETLS,
+       and with what option(s), MAY be done based on a user interface
+       selection or based on a ruleset or other policy. The manner in
+       which the decision to require TLS is made is
+       implementation-dependent and is beyond the scope of this
+       specification.</t>
      </section>
 
      <section anchor="delivery" title="Delivery of REQUIRETLS messages">
        <t>Messages are usually retrieved by end users using protocols
        other than SMTP such as <xref target="RFC3501">IMAP</xref>,
        <xref target="RFC1939">POP</xref>, or web mail systems. Mail
-       delivery agents supporting REQUIRETLS SHOULD require that
-       retrieval of messages requiring transport encryption take
-       place over authenticated, encrypted channels.</t>
+       delivery agents supporting REQUIRETLS SHOULD observe the
+       guidelines in <xref target="I-D.ietf-uta-email-deep" />.</t>
      </section>
    </section>
 
@@ -397,12 +430,11 @@
        other, MUST employ REQUIRETLS using the same authentication
        method(s) as the message that caused the error to occur.</t>
 
-       <t>It should be noted that the path from the origination of an
-       error bounce message back to the MAIL FROM address may not
-       share the same REQUIRETLS support as the forward
-       path. Therefore, users of REQUIRETLS (other than REQUIRETLS=NO)
-       are advised to make sure that they are capable of receiving
-       mail using REQUIRETLS at the same authentication method(s) as
+       <t>The path from the origination of an error bounce message
+       back to the MAIL FROM address may not share the same REQUIRETLS
+       support as the forward path. Therefore, users requiring TLS are
+       advised to make sure that they are capable of receiving mail
+       using REQUIRETLS at the same authentication method(s) as
        messages they send. Otherwise, such non-delivery messages will
        be lost.</t>
 
@@ -415,10 +447,9 @@
        failure. The original From, Return-path, To, Sender, Cc, and
        related header fields MUST NOT be included in this message.</t>
 
-       <t>Senders of messages specifying REQUIRETLS (other than
-       REQUIRETLS=NO) are advised to consider the increased likelihood that
-       bounce messages will be lost as a result of REQUIRETLS return
-       path failure.</t>
+       <t>Senders of messages requiring TLS are advised to consider
+       the increased likelihood that bounce messages will be lost as a
+       result of REQUIRETLS return path failure.</t>
      </section>
 
      <section anchor="lists" title="Mailing list considerations">
@@ -427,11 +458,13 @@
        messages to list addresses, as distinct from an aliasing
        operation that redirects the original message, in some cases to
        multiple recipients. The requirement to preserve the REQUIRETLS
-       tag and options therefore does not extend to mailing
-       lists. REQUIRETLS users SHOULD be made aware of this limitation
-       so that they use caution when sending to
-       mailing lists and do not assume that REQUIRETLS applies to
-       messages from the list operator to list members.</t>
+       tag and options therefore does not necessarily extend to
+       mailing lists, although the inclusion of the Require-TLS header
+       field MAY cause messages sent to mailing lists to inherit this
+       characteristic. REQUIRETLS users SHOULD be made aware of this
+       limitation so that they use caution when sending to mailing
+       lists and do not assume that REQUIRETLS applies to messages
+       from the list operator to list members.</t>
 
        <t>Mailing list operators MAY apply REQUIRETLS requirements in
        incoming messages to the resulting messages they originate. If
@@ -459,6 +492,13 @@
      range to indicate lack of REQUIRETLS support by an SMTP server to
      which a message is being routed.</t>
 
+     <t>If published as an RFC, this draft requests the addition of
+     the header field name Require-TLS to the <xref
+     target="PermMessageHeaderFields">Permanent Message Header Field
+     Names Registry</xref>.</t>
+
+     
+
      <t>This section is to be removed during conversion into an RFC by
      the RFC Editor.</t>
    </section>
@@ -473,9 +513,10 @@
        to one in which requested security takes precedence over
        delivery and domain-level policy.</t>
 
-       <t>The following considerations apply to STARTTLS other than
-       the STARTTLS=NO option, since messages specifying that option
-       are specifying less concern with transport security.</t>
+       <t>The following considerations apply to the REQUIRETLS service
+       extension but not the RequireTLS header field, since messages
+       specifying the header field are less concerned with transport
+       security.</t>
 
        <section anchor="Passive" title="Passive attacks">
 	 <t>REQUIRETLS is generally effective against passive
@@ -553,6 +594,18 @@
      <section anchor="history" title="Revision History">
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
+
+      <section title="Changes since -00 Draft">
+	 <t><list style="symbols">
+	   <t>Created new header field, Require-TLS, for use by "NO"
+	   option.</t>
+	   <t>Removed "NO" option from SMTP service extension.</t>
+	   <t>Recommend DEEP requirements for delivery of messages
+	   requiring TLS.</t>
+	   <t>Assorted copy edits</t>
+	 </list></t>
+       </section>
+
 
        <section title="Changes since fenton-03 Draft">
 	 <t><list style="symbols">
@@ -641,6 +694,9 @@
      &RFC5321;
      &RFC6125;
      &RFC6698;
+     &RFC8174;
+     &I-D.ietf-uta-email-deep;
+
 
      <reference anchor="MailParams"
                 target="http://www.iana.org/assignments/mail-parameters">
@@ -667,6 +723,20 @@
          <date year="2008" />
        </front>
      </reference>
+
+          <reference anchor="PermMessageHeaderFields"
+                target="https://www.iana.org/assignments/message-headers/message-headers.xhtml#perm-headers">
+       <front>
+         <title>Permanent Message Header Field Names Registry</title>
+
+         <author>
+           <organization>Internet Assigned Numbers Authority (IANA)</organization>
+         </author>
+
+         <date year="2004" />
+       </front>
+     </reference>
+ 
 
    </references>
 
