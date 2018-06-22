@@ -7,6 +7,7 @@
     An alternate method (rfc include) is described in the references. -->
 
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC3461 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3461.xml">
 <!ENTITY RFC4880 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4880.xml">
 <!ENTITY RFC5248 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5248.xml">
 <!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
@@ -19,7 +20,7 @@
 <!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
 <!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
 <!ENTITY RFC8314 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8314.xml">
-<!ENTITY I-D.ietf-uta-mta-sts SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-uta-mta-sts-15.xml">
+<!ENTITY I-D.ietf-uta-mta-sts SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-uta-mta-sts-21.xml">
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 <!-- used by XSLT processors -->
@@ -46,7 +47,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-02" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-03" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -402,18 +403,22 @@
        using REQUIRETLS as well. Otherwise, such non-delivery messages
        will be lost.</t>
 
-       <t>If unable to send a bounce message due to a REQUIRETLS
-       failure (the return path not supporting the TLS requirements in
-       the original message), the MTA sending the bounce message MAY
-       send a redacted non-delivery message to the postmaster of the
-       domain identified in the envelope-From address identifying the
-       message only by Message-ID and indicating the type of
-       failure. The original From, Return-path, To, Sender, Cc, and
-       related header fields MUST NOT be included in this message.</t>
+       <t>If a REQUIRETLS message is bounced, the server MUST behave
+       as if RET=HDRS was present as described in <xref
+       target="RFC3461"></xref>. If both RET=FULL and REQUIRETLS are
+       present, the RET=FULL MUST be disregarded and MAY be
+       transformed to RET=HDRS on relay. The SMTP client for a
+       REQUIRETLS bounce message MUST use an empty MAIL FROM
+       return-path as required by <xref target="RFC5321"></xref>. When
+       the MAIL FROM return-path is empty, the REQUIRETLS parameter
+       SHOULD NOT cause a bounce message to be discarded even if the
+       next-hop relay does not advertise REQUIRETLS.</t>
 
        <t>Senders of messages requiring TLS are advised to consider
-       the increased likelihood that bounce messages will be lost as a
-       result of REQUIRETLS return path failure.</t>
+       the possibility that bounce messages will be lost as a result
+       of REQUIRETLS return path failure, and that some information
+       could be leaked if a bounce message is not able to be
+       transmitted with REQUIRETLS.</t>
      </section>
 
      <section anchor="lists" title="Mailing list considerations">
@@ -442,24 +447,59 @@
 
    <section anchor="IANA" title="IANA Considerations">
      <t>If published as an RFC, this draft requests the addition of
-     the keyword REQUIRETLS to the <xref target="MailParams">SMTP
-     Service Extensions Registry</xref>.</t>
+     the following keyword to the <xref target="MailParams">SMTP
+     Service Extensions Registry</xref>:</t>
+
+     <figure align="left"><artwork align="left">
+Textual name:               RequireTLS
+EHLO keyword value:         REQUIRETLS
+Syntax and parameters:      (no parameters)
+Additional SMTP verbs:      none
+MAIL and RCPT parameters:   REQUIRETLS parameter on MAIL
+Behavior:                   Use of the REQUIRETLS parameter on the
+                            MAIL verb causes that message to require
+                            the use of TLS and tagging with REQUIRETLS
+                            for all onward relay.
+Command length increment:   11 characters
+       </artwork></figure>
+			      
 
       <t>If published as an RFC, this draft requests the addition of an
      entry to the <xref
      target="SMTPStatusCodes">Simple Mail Transfer Protocol (SMTP) Enhanced Status
-     Codes Registry</xref> in the 5.7.YYY
-     range to indicate lack of REQUIRETLS support by an SMTP server to
-     which a message is being routed.</t>
+     Codes Registry</xref>:</t>
+
+     <figure align="left"><artwork align="left">
+
+Code:                       5.7.YYY
+Sample Text:                REQUIRETLS support required
+Associated basic status code:  530
+Description:                This indicates that the message was not
+                            able to be forwarded because it was
+                            received with a REQUIRETLS requirement
+                            and none of the SMTP servers to which
+                            the message should be forwarded provide
+                            this support.
+Reference:                  (this document)
+Submitter:                  J. Fenton
+Change controller:          IESG
+       </artwork></figure>
 
      <t>If published as an RFC, this draft requests the addition of
-     the header field name RequireTLS to the <xref
+     an entry to the <xref
      target="PermMessageHeaderFields">Permanent Message Header Field
-     Names Registry</xref>.</t>
+     Names Registry</xref>:</t>
 
-     
+     <figure align="left"><artwork align="left">
+Header field name:          RequireTLS
+Applicable protocol:        mail
+Status:                     provisional
+Author/change controller:   IETF UTA Working Group
+Specification document:     (this document)
+     </artwork></figure>
+       
 
-     <t>This section is to be removed during conversion into an RFC by
+     <t>This section is to be updated for publication by
      the RFC Editor.</t>
    </section>
 
@@ -537,9 +577,10 @@
 
    <section anchor="acknowledgements" title="Acknowledgements">
      <t>The author would like to acknowledge many helpful suggestions
-     on the ietf-smtp and uta mailing lists, in particular those
-     of Viktor Dukhovni, Tony Finch, Jeremy Harris, Arvel Hathcock,
-     John Klensin, John Levine, Rolf Sonneveld, and Per Thorsheim.</t>
+     on the ietf-smtp and uta mailing lists, in particular those of
+     Viktor Dukhovni, Chris Newman, Tony Finch, Jeremy Harris, Arvel
+     Hathcock, John Klensin, John Levine, Rolf Sonneveld, and Per
+     Thorsheim.</t>
 
    </section>
 
@@ -547,6 +588,15 @@
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
 
+       <section title="Changes since -02 Draft">
+	 <t><list style="symbols">
+	   <t>More complete documentation for IANA registration requests.</t>
+	   <t>Changed bounce handling to use RET parameters of RFC
+	   3461, along with slightly more liberal transmission of
+	   bounces even if REQUIRETLS can't be negotiated.</t>
+	 </list></t>
+       </section>
+       
        <section title="Changes since -01 Draft">
 	 <t><list style="symbols">
 	   <t>Converted DEEP references to RFC 8314.</t>
@@ -650,6 +700,7 @@
      <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
      &RFC2119;
      &RFC3207;
+     &RFC3461;
      &RFC5248;
      &RFC5321;
      &RFC6125;
