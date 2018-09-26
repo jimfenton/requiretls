@@ -14,13 +14,12 @@
 <!ENTITY RFC5751 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5751.xml">
 <!ENTITY RFC3207 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3207.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
-<!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY RFC7672 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7672.xml">
 <!ENTITY RFC1939 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1939.xml">
 <!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
 <!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
 <!ENTITY RFC8314 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8314.xml">
-<!ENTITY I-D.ietf-uta-mta-sts SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-uta-mta-sts-21.xml">
+<!ENTITY RFC8461 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8461.xml">
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 <!-- used by XSLT processors -->
@@ -47,7 +46,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-03" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-04" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -141,7 +140,7 @@
      certificate is invalid.</t>
 
      <t>Policy mechanisms such as <xref target="RFC7672">DANE</xref>
-     and <xref target="I-D.ietf-uta-mta-sts">MTA-STS</xref> may
+     and <xref target="RFC8461">MTA-STS</xref> may
      impose requirements for the use of TLS for email destined for
      some domains. However, such policies do not allow the sender to
      specify which messages are more sensitive and require
@@ -194,10 +193,9 @@
        <t>One MAIL FROM option is defined
        by this extension.</t>
        
-       <t>Two new SMTP status codes are defined by this extension to
-       convey error conditions resulting from failure of the client to
-       negotiate a TLS connection with the required security and as a
-       result of an attempt to send to a server not also supporting
+       <t>One new SMTP status code is defined by this extension to
+       convey an error condition resulting from failure of the client to
+       send to a server not also supporting
        the REQUIRETLS extension.</t>
      </list></t>
 
@@ -226,7 +224,7 @@
 
      <t>One new message header field, RequireTLS, is defined by this
      specification. It is used for messages requesting that recipient
-     TLS policy (<xref target="I-D.ietf-uta-mta-sts">MTA-STS</xref> or
+     TLS policy (including <xref target="RFC8461">MTA-STS</xref> and
      <xref target="RFC7672">DANE</xref>) be ignored.</t>
      
    <t>The RequireTLS header field has a single REQUIRED parameter:</t>
@@ -234,7 +232,8 @@
      <t><list style="symbols">
       <t>NO - The SMTP client SHOULD attempt to send the message
       regardless of its ability to negotiate STARTTLS with the SMTP
-      server, ignoring policy-based mechanisms, if any, asserted by
+      server, ignoring policy-based mechanisms (including MTA-STS and
+      DANE), if any, asserted by
       the recipient domain. Nevertheless, the client SHOULD negotiate
       STARTTLS with the server if available.</t>
      </list></t>
@@ -282,7 +281,7 @@
 	 <t>Establish a TLS-protected SMTP session with its peer SMTP
 	 server and authenticate the server's certificate as specified
 	 in <xref target="RFC6125"></xref> or <xref
-	 target="RFC6698"></xref> as applicable.</t>
+	 target="RFC7672"></xref> as applicable.</t>
 
 	 <t>Ensure that the response to the subsequent EHLO following
 	 establishment of the TLS protection advertises the REQUIRETLS
@@ -458,8 +457,8 @@ Additional SMTP verbs:      none
 MAIL and RCPT parameters:   REQUIRETLS parameter on MAIL
 Behavior:                   Use of the REQUIRETLS parameter on the
                             MAIL verb causes that message to require
-                            the use of TLS and tagging with REQUIRETLS
-                            for all onward relay.
+                            the use of TLS and tagging with
+                            REQUIRETLS for all onward relay.
 Command length increment:   11 characters
        </artwork></figure>
 			      
@@ -588,6 +587,17 @@ Specification document:     (this document)
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
 
+       <section title="Changes since -03 Draft">
+	 <t>Working Group Last Call changes, including:</t>
+	 <t><list style="symbols">
+	   <t>Correct reference for SMTP DANE</t>
+	   <t>Clarify that RequireTLS: NO applies to both MTA-STS and
+	   DANE policies</t>
+	   <t>Correct newly-defined status codes</t>
+	   <t>Update MTA-STS references to RFC</t>
+	 </list></t>
+       </section>
+
        <section title="Changes since -02 Draft">
 	 <t><list style="symbols">
 	   <t>More complete documentation for IANA registration requests.</t>
@@ -704,7 +714,6 @@ Specification document:     (this document)
      &RFC5248;
      &RFC5321;
      &RFC6125;
-     &RFC6698;
      &RFC8174;
      &RFC8314;
 
@@ -758,7 +767,7 @@ Specification document:     (this document)
      &RFC4880;
      &RFC5751;
      &RFC7672;
-     &I-D.ietf-uta-mta-sts;
+     &RFC8461;
      
      <!-- A reference written by by an organization not a person. -->
 
