@@ -8,6 +8,9 @@
 
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC3461 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3461.xml">
+<!ENTITY RFC4033 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4033.xml">
+<!ENTITY RFC4034 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4034.xml">
+<!ENTITY RFC4035 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4035.xml">
 <!ENTITY RFC4880 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4880.xml">
 <!ENTITY RFC5248 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5248.xml">
 <!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
@@ -46,7 +49,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-04" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-05" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -206,6 +209,15 @@
      have been specified:
      <list style="symbols">
        <t>The session itself MUST employ TLS transmission.</t>
+       <t>If the SMTP server to which the message is being transmitted
+       is identified through an MX record lookup, its name
+       MUST be validated via a DNSSEC signature on the recipient
+       domain's MX record, or the MX hostname MUST be
+       validated by an MTA-STS policy as described in Section 4.1 of
+       <xref target="RFC8461">RFC&nbsp;8461</xref>. DNSSEC is defined
+       in <xref target="RFC4033">RFC&nbsp;4033</xref>,
+       <xref target="RFC4034">RFC&nbsp;4034</xref>, and
+       <xref target="RFC4035">RFC&nbsp;4035</xref>.</t>
        <t>The certificate presented by the SMTP server MUST either
        verify successfully in a trust chain leading to a certificate
        trusted by the SMTP client or it MUST verify succesfully using
@@ -274,7 +286,13 @@
 	 <t>Look up the SMTP server to which the message is to be sent
 	 as described in <xref target="RFC5321"></xref> Section
 	 5.1.</t>
-	 
+
+	 <t>If the server lookup is accomplished via the recipient
+	 domain's MX record (the usual case) and is not accompanied by a valid
+	 DNSSEC signature, the client MUST also validate the SMTP
+	 server name using MTA-STS as described in Section 4.1 of
+        <xref target="RFC8461">RFC&nbsp;8461</xref>.</t>
+
 	 <t>Open an SMTP session with the peer SMTP server using the
 	 EHLO verb.</t>
 	 
@@ -296,7 +314,7 @@
        </list></t>
 
        <t>If any of the above steps fail, the client MUST issue a QUIT
-       to the server and repeat steps 2-4 with each host on the
+       to the server and repeat steps 2-5 with each host on the
        recipient domain's list of MX hosts in an attempt to find a
        mail path that meets the sender's requirements. The client MAY
        send other, unprotected, messages to that server if it has any
@@ -546,10 +564,12 @@ Specification document:     (this document)
 
 	 <t>Another active attack involves the spoofing of DNS MX
 	 records of the recipient domain. An attacker having this
-	 capability could cause the message to be redirected to a mail
+	 capability could potentially cause the message to be redirected to a mail
 	 server under the attacker's own control, which would
-	 presumably have a valid certificate. REQUIRETLS does not
-	 address this attack.</t>
+	 presumably have a valid certificate. REQUIRETLS requires that
+	 the recipient domain's MX record lookup be validated either
+	 using DNSSEC or via a published MTA-STS policy that specifies
+	 the acceptable SMTP server hostname(s) for the recipient domain.</t>
 
        </section>
 
@@ -586,6 +606,11 @@ Specification document:     (this document)
      <section anchor="history" title="Revision History">
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
+
+      <section title="Changes since -04 Draft">
+	 <t>Require validation of SMTP server hostname via DNSSEC or
+	 MTA-STS policy when TLS is required.</t>
+       </section>
 
        <section title="Changes since -03 Draft">
 	 <t>Working Group Last Call changes, including:</t>
@@ -710,12 +735,16 @@ Specification document:     (this document)
      <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
      &RFC2119;
      &RFC3207;
+     &RFC4033;
+     &RFC4034;
+     &RFC4035;
      &RFC3461;
      &RFC5248;
      &RFC5321;
      &RFC6125;
      &RFC8174;
      &RFC8314;
+     &RFC8461;
 
      <reference anchor="MailParams"
                 target="http://www.iana.org/assignments/mail-parameters">
@@ -767,7 +796,6 @@ Specification document:     (this document)
      &RFC4880;
      &RFC5751;
      &RFC7672;
-     &RFC8461;
      
      <!-- A reference written by by an organization not a person. -->
 
