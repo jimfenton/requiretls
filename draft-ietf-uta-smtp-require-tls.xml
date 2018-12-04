@@ -49,7 +49,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-05" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-06" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -220,7 +220,7 @@
        <xref target="RFC4035">RFC&nbsp;4035</xref>.</t>
        <t>The certificate presented by the SMTP server MUST either
        verify successfully in a trust chain leading to a certificate
-       trusted by the SMTP client or it MUST verify succesfully using
+       trusted by the SMTP client or it MUST verify successfully using
        DANE as specified in <xref
        target="RFC7672">RFC&nbsp;7672</xref>. For trust chains, the
        choice of trusted (root) certificates is at the discretion of
@@ -510,8 +510,8 @@ Change controller:          IESG
      <figure align="left"><artwork align="left">
 Header field name:          RequireTLS
 Applicable protocol:        mail
-Status:                     provisional
-Author/change controller:   IETF UTA Working Group
+Status:                     standard
+Author/change controller:   IETF
 Specification document:     (this document)
      </artwork></figure>
        
@@ -607,7 +607,12 @@ Specification document:     (this document)
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
 
-      <section title="Changes since -04 Draft">
+      <section title="Changes since -05 Draft">
+	 <t>Corrected IANA Permanent Message Header Fields Registry
+	 request.</t>
+       </section>
+
+       <section title="Changes since -04 Draft">
 	 <t>Require validation of SMTP server hostname via DNSSEC or
 	 MTA-STS policy when TLS is required.</t>
        </section>
