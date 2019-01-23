@@ -6,17 +6,22 @@
     There has to be one entity for each item to be referenced. 
     An alternate method (rfc include) is described in the references. -->
 
+<!ENTITY RFC2033 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2033.xml">
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC3461 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3461.xml">
 <!ENTITY RFC4033 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4033.xml">
 <!ENTITY RFC4034 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4034.xml">
 <!ENTITY RFC4035 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4035.xml">
 <!ENTITY RFC4880 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4880.xml">
+<!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
 <!ENTITY RFC5248 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5248.xml">
 <!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
+<!ENTITY RFC5322 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5322.xml">
 <!ENTITY RFC5751 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5751.xml">
 <!ENTITY RFC3207 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3207.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
+<!ENTITY RFC6409 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6409.xml">
+<!ENTITY RFC7525 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7525.xml">
 <!ENTITY RFC7672 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7672.xml">
 <!ENTITY RFC1939 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1939.xml">
 <!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
@@ -84,7 +89,7 @@
      </address>
    </author>
 
-   <date year="2018" />
+   <date year="2019" />
 
    <!-- If the month and year are both specified and are the current ones, xml2rfc will fill 
         in the current day for you. If only the current year is specified, xml2rfc will fill 
@@ -184,6 +189,10 @@
        interpreted as described in BCP 14 <xref target="RFC2119" />
        <xref target="RFC8174" /> when, and only when, they appear in
        all capitals, as shown here.</t>
+
+       <t>The formal syntax uses the Augmented Backus-Naur Form (ABNF)
+       <xref target="RFC5234" /> including the core rules defined in
+       Appendix B of that document.</t>
      </section>
    </section>
 
@@ -192,21 +201,45 @@
        <t>The textual name of the extension is "Require TLS".</t>
        <t>The EHLO keyword value associated with this extension is
        "REQUIRETLS".</t>
+
+       <t>No additional SMTP verbs are defined by this extension.</t>
        
-       <t>One MAIL FROM option is defined
-       by this extension.</t>
+       <t>One optional parameter ("REQUIRETLS") is added to the MAIL
+       FROM command by this extension. No value is associated with
+       this parameter.</t>
+
+       <t>The maximum length of a MAIL FROM command line is increased
+       by 11 octets by the possible addition of a space and the
+       REQUIRETLS keyword.</t>
        
        <t>One new SMTP status code is defined by this extension to
        convey an error condition resulting from failure of the client to
        send to a server not also supporting
        the REQUIRETLS extension.</t>
+
+       <t>The REQUIRETLS extension is valid for message relay <xref
+       target="RFC5321"></xref>, submission <xref
+       target="RFC6409"></xref>, and the Local Mail Transfer Protocol
+       (LMTP) <xref target="RFC2033"></xref></t>
+
+       <t>The ABNF syntax for the MAIL FROM parameter is as follows:
+       <figure>
+	 <artwork>
+   requiretls-param  = "REQUIRETLS"
+                   ; where requiretls-param is an instance of an
+                   ; esmtp-param used in Mail-parameters in
+                   ; RFC 5321 Section 4.1.2. There is no esmtp-value
+                   ; associated with requiretls-param.
+         </artwork>
+       </figure>
+     </t>
      </list></t>
 
      <t>In order to specify REQUIRETLS treatment for a given message,
      the REQUIRETLS option is specified on the MAIL FROM command when
      that message is transmitted. This option MUST only be specified in the
-     context of an SMTP session meeting the security requirements that
-     have been specified:
+     context of an SMTP session meeting the security requirements of
+     REQUIRETLS:
      <list style="symbols">
        <t>The session itself MUST employ TLS transmission.</t>
        <t>If the SMTP server to which the message is being transmitted
@@ -234,10 +267,14 @@
 
    <section anchor="header_field" title="The RequireTLS Header Field">
 
-     <t>One new message header field, RequireTLS, is defined by this
-     specification. It is used for messages requesting that recipient
+     <t>One new message header field <xref target="RFC5322" />,
+     RequireTLS, is defined by this
+     specification. It is used for messages for which the originator
+     requests that recipient
      TLS policy (including <xref target="RFC8461">MTA-STS</xref> and
-     <xref target="RFC7672">DANE</xref>) be ignored.</t>
+     <xref target="RFC7672">DANE</xref>) be ignored. This might be
+     done, for example, to report a misconfigured mail server, such as
+     an expired TLS certificate.</t>
      
    <t>The RequireTLS header field has a single REQUIRED parameter:</t>
 
@@ -253,12 +290,26 @@
      <t>More than one instance of the RequireTLS header field MUST
      NOT appear in a given message.</t>
 
+     <t>The ABNF syntax for the RequireTLS header field is as
+     follows:</t>
+     <figure>
+       <artwork>
+      requiretls-field = "RequireTLS:" [FWS] "No" CRLF
+              ; where requiretls-field in an instance of an
+              ; optional-field defined in RFC 5322 Section
+              ; 3.6.8.
+      FWS = &lt;as defined in RFC 5322>
+      CRLF = &lt;as defined in RFC 5322>
+       </artwork>
+     </figure>
+
    </section>
 
    <section anchor="semantics" title="REQUIRETLS Semantics">
      <section anchor="receipt" title="REQUIRETLS Receipt Requirements">
        <t>Upon receipt of the REQUIRETLS option on a MAIL FROM command
-       during the receipt of a message, an SMTP server MUST tag that
+       during the receipt of a message for which the return-path is
+       not empty (indicating a bounce message), an SMTP server MUST tag that
        message as needing REQUIRETLS handling.</t>
 
        <t>Upon receipt of a message not specifying the REQUIRETLS
@@ -278,7 +329,9 @@
      
      <section anchor="sender" title="REQUIRETLS Sender Requirements">
        <section anchor="yestls" title="Sending with TLS Required">
-       <t>When sending a message tagged as requiring TLS, the sending
+       <t>When sending a message tagged as requiring TLS for which the
+       MAIL FROM return-path is not empty (an empty MAIL FROM
+       return-path indicating a bounce message), the sending
        (client) MTA MUST:
 
        <list style="numbers">
@@ -290,8 +343,8 @@
 	 <t>If the server lookup is accomplished via the recipient
 	 domain's MX record (the usual case) and is not accompanied by a valid
 	 DNSSEC signature, the client MUST also validate the SMTP
-	 server name using MTA-STS as described in Section 4.1 of
-        <xref target="RFC8461">RFC&nbsp;8461</xref>.</t>
+	 server name using MTA-STS as described in
+         <xref target="RFC8461">RFC&nbsp;8461</xref> Section 4.1.</t>
 
 	 <t>Open an SMTP session with the peer SMTP server using the
 	 EHLO verb.</t>
@@ -305,13 +358,11 @@
 	 establishment of the TLS protection advertises the REQUIRETLS
 	 capability.</t>
 
-	 <t>The SMTP client SHOULD also require that meaningfully
-	 secure cipher algorithms and key lengths be negotiated with
-	 the server. The choices of key lengths and algorithms change
-	 over time, so a specific requirement is not presented
-	 here.</t>
-
        </list></t>
+
+       <t>The SMTP client SHOULD follow the recommendations in <xref
+       target="RFC7525"></xref> or its successor with respect to
+       negotiation of the TLS session.</t>
 
        <t>If any of the above steps fail, the client MUST issue a QUIT
        to the server and repeat steps 2-5 with each host on the
@@ -327,7 +378,7 @@
        following <xref target="RFC5248">status codes</xref> SHOULD be used:
 
        <list style="symbols">
-	 <t>REQUIRETLS not supported by server: 5.7.x REQUIRETLS
+	 <t>REQUIRETLS not supported by server: 5.7.YYY REQUIRETLS
 	 needed</t>
 	 <t>Unable to establish TLS-protected SMTP session: 5.7.10
 	 Encryption needed</t>
@@ -425,7 +476,7 @@
        target="RFC3461"></xref>. If both RET=FULL and REQUIRETLS are
        present, the RET=FULL MUST be disregarded and MAY be
        transformed to RET=HDRS on relay. The SMTP client for a
-       REQUIRETLS bounce message MUST use an empty MAIL FROM
+       REQUIRETLS bounce message uses an empty MAIL FROM
        return-path as required by <xref target="RFC5321"></xref>. When
        the MAIL FROM return-path is empty, the REQUIRETLS parameter
        SHOULD NOT cause a bounce message to be discarded even if the
@@ -487,7 +538,6 @@ Command length increment:   11 characters
      Codes Registry</xref>:</t>
 
      <figure align="left"><artwork align="left">
-
 Code:                       5.7.YYY
 Sample Text:                REQUIRETLS support required
 Associated basic status code:  530
@@ -521,14 +571,12 @@ Specification document:     (this document)
    </section>
 
    <section anchor="Security" title="Security Considerations">
-       <t>The purpose of REQUIRETLS is to improve communications
-       security for email by giving the originator of a message an
-       expectation that it will be transmitted in an encrypted form
-       "over the wire". When used, REQUIRETLS changes the traditional
-       behavior of email transmission, which favors delivery over the
-       ability to send email messages using transport-layer security,
-       to one in which requested security takes precedence over
-       delivery and domain-level policy.</t>
+     <t>The purpose of REQUIRETLS is to give the originator of a
+     message control over the security of email they send, either by
+     conveying an expectation that it will be transmitted in an
+     encrypted form "over the wire" or explicitly that transport
+     encryption is not required if it cannot be successfully
+     negotiated.</t>
 
        <t>The following considerations apply to the REQUIRETLS service
        extension but not the RequireTLS header field, since messages
@@ -607,7 +655,26 @@ Specification document:     (this document)
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
 
-      <section title="Changes since -05 Draft">
+       <section title="Changes since -06 Draft">
+	 <t>Various changes in response to AD review:</t>
+
+	 <t><list style="symbols">
+	   <t>Reference RFC 7525 for TLS negotiation
+	   recommendations.</t>
+	   <t>Make reference to requested 5.7.YYY error code
+	   consistent.</t>
+	   <t>Clarify applicability to LMTP and submission.</t>
+	   <t>Provide ABNF for syntax of SMTP option and header field
+	   and examples in Appendix A.</t>
+	   <t>Correct use of normative language in Section 5.</t>
+	   <t>Clarify case where REQUIRETLS option is used on bounce
+	   messages.</t>
+	   <t>Improve Security Requirements wording to be incusive of
+	   both SMTP option and header field.</t>
+	 </list></t>
+       </section>
+       
+       <section title="Changes since -05 Draft">
 	 <t>Corrected IANA Permanent Message Header Fields Registry
 	 request.</t>
        </section>
@@ -744,9 +811,13 @@ Specification document:     (this document)
      &RFC4034;
      &RFC4035;
      &RFC3461;
+     &RFC5234;
      &RFC5248;
      &RFC5321;
+     &RFC5322;
      &RFC6125;
+     &RFC7525;
+     &RFC7672;
      &RFC8174;
      &RFC8314;
      &RFC8461;
@@ -797,14 +868,83 @@ Specification document:     (this document)
      <!-- Here we use entities that we defined at the beginning. -->
 
      &RFC1939;
+     &RFC2033;
      &RFC3501;
      &RFC4880;
      &RFC5751;
-     &RFC7672;
+     &RFC6409;
      
-     <!-- A reference written by by an organization not a person. -->
-
    </references>
 
+   <section title="Examples">
+     <t>This section is informative.</t>
+     <section title="REQUIRETLS SMTP Option">
+       <t>The RequireTLS SMTP option is used to express the intent of
+       the sender that the associated message be relayed using TLS. In
+       the following example, lines beginning with C: are transmitted
+       from the SMTP client to the server, and lines beginning with S:
+       are transmitted in the opposite direction.</t>
+       <figure>
+         <artwork>
+ S: 220 mail.example.net ESMTP
+ C: EHLO mail.example.org
+ S: 250-mail.example.net Hello example.org [192.0.2.1]
+ S: 250-SIZE 52428800
+ S: 250-8BITMIME
+ S: 250-PIPELINING
+ S: 250-STARTTLS
+ S: 250 HELP
+ C: STARTTLS
+ S: TLS go ahead
+
+ (at this point TLS negotiation takes place. The remainder of this
+ session occurs within TLS.)
+
+ S: 220 mail.example.net ESMTP
+ C: EHLO mail.example.org
+ S: 250-mail.example.net Hello example.org [192.0.2.1]
+ S: 250-SIZE 52428800
+ S: 250-8BITMIME
+ S: 250-PIPELINING
+ S: 250-REQUIRETLS
+ S: 250 HELP
+ C: MAIL FROM:&lt;roger@example.org> REQUIRETLS
+ S: 250 OK
+ C: RCPT TO:&lt;editor@example.net>
+ S: 250 Accepted
+ C: DATA
+ S: 354 Enter message, ending with "." on a line by itself
+
+ (message follows)
+ C: .
+ S: 250 OK
+ C: QUIT
+         </artwork>
+       </figure>
+     </section>
+     <section title="RequireTLS Header Field">
+       <t>The RequireTLS header field is used when the sender of the
+       message wants to override the default policy of the recipient
+       domain to require TLS. It might be used, for example, to allow
+       problems with the recipient domain's TLS certificate to be
+       reported:</t>
+       <figure>
+	 <artwork>
+ From: Roger Reporter &lt;roger@example.org>
+ To: Andy Admin &lt;admin@example.com>
+ Subject: Certificate problem?
+ RequireTLS: NO
+ Date: Fri, 18 Jan 2019 10:26:55 -0800
+ Message-ID: &lt;5c421a6f79c0e_d153ff8286d45c468473@mail.example.org>
+
+ Andy, there seems to be a problem with the TLS certificate
+ on your mail server. Are you aware of this?
+
+ Roger
+         </artwork>
+       </figure>
+     </section>
+     
+   </section>
  </back>
 </rfc>
