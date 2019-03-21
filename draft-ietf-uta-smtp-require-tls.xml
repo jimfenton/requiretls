@@ -308,8 +308,7 @@
    <section anchor="semantics" title="REQUIRETLS Semantics">
      <section anchor="receipt" title="REQUIRETLS Receipt Requirements">
        <t>Upon receipt of the REQUIRETLS option on a MAIL FROM command
-       during the receipt of a message for which the return-path is
-       not empty (indicating a bounce message), an SMTP server MUST tag that
+       during the receipt of a message, an SMTP server MUST tag that
        message as needing REQUIRETLS handling.</t>
 
        <t>Upon receipt of a message not specifying the REQUIRETLS
