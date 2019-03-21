@@ -54,7 +54,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-07" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-07a" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -519,7 +519,7 @@
      Service Extensions Registry</xref>:</t>
 
      <figure align="left"><artwork align="left">
-Textual name:               RequireTLS
+Textual name:               Require TLS
 EHLO keyword value:         REQUIRETLS
 Syntax and parameters:      (no parameters)
 Additional SMTP verbs:      none
@@ -540,7 +540,7 @@ Command length increment:   11 characters
      <figure align="left"><artwork align="left">
 Code:                       5.7.YYY
 Sample Text:                REQUIRETLS support required
-Associated basic status code:  530
+Associated basic status code:  550
 Description:                This indicates that the message was not
                             able to be forwarded because it was
                             received with a REQUIRETLS requirement
@@ -654,6 +654,16 @@ Specification document:     (this document)
      <section anchor="history" title="Revision History">
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
+
+       <section title="Changes since -07 Draft">
+	 <t>Changes in response to IETF Last Call comments:</t>
+	 <t><list style="symbols">
+	   <t>Change associated status code for 5.7.YYY from 530 to
+	   550.</t>
+	   <t>Correct textual name of extension in IANA Considerations
+	   for consistency with the rest of the document.</t>
+	 </list></t>
+       </section>
 
        <section title="Changes since -06 Draft">
 	 <t>Various changes in response to AD review:</t>
