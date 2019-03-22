@@ -122,8 +122,8 @@
      standpoint as it might be because of its opportunistic nature;
      message delivery is, by default, prioritized over security. This
      document describes an SMTP service extension, REQUIRETLS, and
-     message header field, RequireTLS. If the REQUIRETLS option or
-     RequireTLS message header field is used when sending a message,
+     message header field, TLS-Required. If the REQUIRETLS option or
+     TLS-Required message header field is used when sending a message,
      it asserts a request on the part of the message sender to
      override the default negotiation of TLS, either by requiring that
      TLS be negotiated when the message is relayed, or by requesting
@@ -175,10 +175,10 @@
      will honor the requirement to enforce TLS transmission and
      REQUIRETLS support for onward transmission of those messages.</t>
 
-     <t>The RequireTLS message header field is used to convey a
+     <t>The TLS-Required message header field is used to convey a
      request to ignore recipient-side policy mechanisms such as
      MTA-STS and DANE, thereby prioritizing delivery over ability to
-     negotiate TLS. Unlike the service extension, the RequireTLS
+     negotiate TLS. Unlike the service extension, the TLS-Required
      header field allows the message to transit through one or more
      MTAs that do not support REQUIRETLS.</t>
 
@@ -265,10 +265,10 @@
  
    </section>
 
-   <section anchor="header_field" title="The RequireTLS Header Field">
+   <section anchor="header_field" title="The TLS-Required Header Field">
 
      <t>One new message header field <xref target="RFC5322" />,
-     RequireTLS, is defined by this
+     TLS-Required, is defined by this
      specification. It is used for messages for which the originator
      requests that recipient
      TLS policy (including <xref target="RFC8461">MTA-STS</xref> and
@@ -276,10 +276,10 @@
      done, for example, to report a misconfigured mail server, such as
      an expired TLS certificate.</t>
      
-   <t>The RequireTLS header field has a single REQUIRED parameter:</t>
+   <t>The TLS-Required header field has a single REQUIRED parameter:</t>
 
      <t><list style="symbols">
-      <t>NO - The SMTP client SHOULD attempt to send the message
+      <t>No - The SMTP client SHOULD attempt to send the message
       regardless of its ability to negotiate STARTTLS with the SMTP
       server, ignoring policy-based mechanisms (including MTA-STS and
       DANE), if any, asserted by
@@ -287,14 +287,14 @@
       STARTTLS with the server if available.</t>
      </list></t>
 
-     <t>More than one instance of the RequireTLS header field MUST
+     <t>More than one instance of the TLS-Required header field MUST
      NOT appear in a given message.</t>
 
-     <t>The ABNF syntax for the RequireTLS header field is as
+     <t>The ABNF syntax for the TLS-Required header field is as
      follows:</t>
      <figure>
        <artwork>
-      requiretls-field = "RequireTLS:" [FWS] "No" CRLF
+      requiretls-field = "TLS-Required:" [FWS] "No" CRLF
               ; where requiretls-field in an instance of an
               ; optional-field defined in RFC 5322 Section
               ; 3.6.8.
@@ -312,11 +312,11 @@
        message as needing REQUIRETLS handling.</t>
 
        <t>Upon receipt of a message not specifying the REQUIRETLS
-       option on its MAIL FROM command but containing the RequireTLS
+       option on its MAIL FROM command but containing the TLS-Required
        header field in its message header, an SMTP server implementing
        this specification MUST tag that message with the option
-       specified in the RequireTLS header field. If the REQUIRETLS
-       MAIL FROM parameter is specified, the RequireTLS header field
+       specified in the TLS-Required header field. If the REQUIRETLS
+       MAIL FROM parameter is specified, the TLS-Required header field
        MUST be ignored but MAY be included in onward relay of the
        message.</t>
 
@@ -392,7 +392,7 @@
 
        </section>
        <section anchor="maytls" title="Sending with TLS Optional">
-	 <t>Messages tagged RequireTLS: NO are handled as
+	 <t>Messages tagged TLS-Required: No are handled as
 	 follows. When sending such a message, the sending (client)
 	 MTA MUST:
 	 <list style="symbols">
@@ -415,7 +415,7 @@
 	 inability to negotiate STARTTLS when required by the
 	 server.</t>
 
-	 <t>Since messages tagged with RequireTLS: NO will sometimes
+	 <t>Since messages tagged with TLS-Required: No will sometimes
 	 be sent to SMTP servers not supporting REQUIRETLS, that
 	 option will not be uniformly observed by all SMTP relay
 	 hops.</t>
@@ -432,7 +432,7 @@
        FROM command, as is done for message relay.</t>
 
        <t>When TLS is not to be required, the sender MUST include the
-       RequireTLS header field in the message. SMTP servers
+       TLS-Required header field in the message. SMTP servers
        implementing this specification MUST interpret this header
        field as described in <xref target="receipt" />.</t>
 
@@ -495,7 +495,7 @@
        operation that redirects the original message, in some cases to
        multiple recipients. The requirement to preserve the REQUIRETLS
        tag therefore does not necessarily extend to mailing lists,
-       although the inclusion of the RequireTLS header field MAY cause
+       although the inclusion of the TLS-Required header field MAY cause
        messages sent to mailing lists to inherit this
        characteristic. REQUIRETLS users should be made aware of this
        limitation so that they use caution when sending to mailing
@@ -557,7 +557,7 @@ Change controller:          IESG
      Names Registry</xref>:</t>
 
      <figure align="left"><artwork align="left">
-Header field name:          RequireTLS
+Header field name:          TLS-Required
 Applicable protocol:        mail
 Status:                     standard
 Author/change controller:   IETF
@@ -578,7 +578,7 @@ Specification document:     (this document)
      negotiated.</t>
 
        <t>The following considerations apply to the REQUIRETLS service
-       extension but not the RequireTLS header field, since messages
+       extension but not the TLS-Required header field, since messages
        specifying the header field are less concerned with transport
        security.</t>
 
@@ -663,8 +663,10 @@ Specification document:     (this document)
 	   for consistency with the rest of the document.</t>
 	   <t>Remove special handling of bounce messages in Section
 	   4.1.</t>
-	   <t>Make suggestion to educate uses on mailing lists in
+	   <t>Make suggestion to educate users on mailing lists in
 	   Section 6 non-normative.</t>
+	   <t>Change name of header field from RequireTLS to
+	   TLS-Required and make capitalization of parameter consistent.</t>
 
 	 </list></t>
        </section>
@@ -893,7 +895,7 @@ Specification document:     (this document)
    <section title="Examples">
      <t>This section is informative.</t>
      <section title="REQUIRETLS SMTP Option">
-       <t>The RequireTLS SMTP option is used to express the intent of
+       <t>The TLS-Required SMTP option is used to express the intent of
        the sender that the associated message be relayed using TLS. In
        the following example, lines beginning with C: are transmitted
        from the SMTP client to the server, and lines beginning with S:
@@ -936,8 +938,8 @@ Specification document:     (this document)
          </artwork>
        </figure>
      </section>
-     <section title="RequireTLS Header Field">
-       <t>The RequireTLS header field is used when the sender of the
+     <section title="TLS-Required Header Field">
+       <t>The TLS-Required header field is used when the sender of the
        message wants to override the default policy of the recipient
        domain to require TLS. It might be used, for example, to allow
        problems with the recipient domain's TLS certificate to be
@@ -947,7 +949,7 @@ Specification document:     (this document)
  From: Roger Reporter &lt;roger@example.org>
  To: Andy Admin &lt;admin@example.com>
  Subject: Certificate problem?
- RequireTLS: NO
+ TLS-Required: No
  Date: Fri, 18 Jan 2019 10:26:55 -0800
  Message-ID: &lt;5c421a6f79c0e_d153ff8286d45c468473@mail.example.org>
 
