@@ -473,8 +473,7 @@
        <t>If a REQUIRETLS message is bounced, the server MUST behave
        as if RET=HDRS was present as described in <xref
        target="RFC3461"></xref>. If both RET=FULL and REQUIRETLS are
-       present, the RET=FULL MUST be disregarded and MAY be
-       transformed to RET=HDRS on relay. The SMTP client for a
+       present, the RET=FULL MUST be disregarded. The SMTP client for a
        REQUIRETLS bounce message uses an empty MAIL FROM
        return-path as required by <xref target="RFC5321"></xref>. When
        the MAIL FROM return-path is empty, the REQUIRETLS parameter
@@ -666,7 +665,10 @@ Specification document:     (this document)
 	   <t>Make suggestion to educate users on mailing lists in
 	   Section 6 non-normative.</t>
 	   <t>Change name of header field from RequireTLS to
-	   TLS-Required and make capitalization of parameter consistent.</t>
+	   TLS-Required and make capitalization of parameter
+	   consistent.</t>
+	   <t>Remove mention of transforming RET=FULL to RET=HDRS on
+	   relay in Section 5.</t>
 
 	 </list></t>
        </section>
