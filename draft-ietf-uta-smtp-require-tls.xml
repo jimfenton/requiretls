@@ -497,7 +497,7 @@
        tag therefore does not necessarily extend to mailing lists,
        although the inclusion of the RequireTLS header field MAY cause
        messages sent to mailing lists to inherit this
-       characteristic. REQUIRETLS users SHOULD be made aware of this
+       characteristic. REQUIRETLS users should be made aware of this
        limitation so that they use caution when sending to mailing
        lists and do not assume that REQUIRETLS applies to messages
        from the list operator to list members.</t>
@@ -661,6 +661,11 @@ Specification document:     (this document)
 	   550.</t>
 	   <t>Correct textual name of extension in IANA Considerations
 	   for consistency with the rest of the document.</t>
+	   <t>Remove special handling of bounce messages in Section
+	   4.1.</t>
+	   <t>Make suggestion to educate uses on mailing lists in
+	   Section 6 non-normative.</t>
+
 	 </list></t>
        </section>
 
