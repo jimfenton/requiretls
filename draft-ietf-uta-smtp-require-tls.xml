@@ -13,10 +13,12 @@
 <!ENTITY RFC4034 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4034.xml">
 <!ENTITY RFC4035 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4035.xml">
 <!ENTITY RFC4880 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4880.xml">
+<!ENTITY RFC5228 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5228.xml">
 <!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
 <!ENTITY RFC5248 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5248.xml">
 <!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
 <!ENTITY RFC5322 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5322.xml">
+<!ENTITY RFC5598 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5598.xml">
 <!ENTITY RFC5751 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5751.xml">
 <!ENTITY RFC3207 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3207.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
@@ -487,25 +489,39 @@
        transmitted with REQUIRETLS.</t>
      </section>
 
-     <section anchor="lists" title="Mailing list considerations">
+     <section anchor="reorigination" title="Reorigination considerations">
 
-       <t>Mailing lists, upon receipt of a message, originate new
-       messages to list addresses. This is distinct from an aliasing
-       operation that redirects the original message, in some cases to
-       multiple recipients. The requirement to preserve the REQUIRETLS
-       tag therefore does not necessarily extend to mailing lists,
-       although the inclusion of the TLS-Required header field MAY cause
-       messages sent to mailing lists to inherit this
-       characteristic. REQUIRETLS users should be made aware of this
-       limitation so that they use caution when sending to mailing
-       lists and do not assume that REQUIRETLS applies to messages
-       from the list operator to list members.</t>
+      <t>In a number of situations, a <xref target="RFC5598">mediator</xref>
+      originates a new message as a result of an incoming message. These
+      situations include, but are not limited to, mailing lists (including
+      administrative traffic such as message approval requests),
+      <xref target="RFC5228">Sieve</xref>, "vacation" responders, and other
+      filters to which incoming
+      messages may be piped. These newly originated messages may essentially
+      be copies of the incoming message, such as with a forwarding service
+      or a mailing list expander.  In other cases, such as with a vacation
+      message or a delivery notification, they will be different but might
+      contain parts of the original message or other information for which
+      the original message sender wants to influence the requirement to use
+      TLS transmission.</t>
 
-       <t>Mailing list operators MAY apply REQUIRETLS requirements in
-       incoming messages to the resulting messages they originate. If
-       this is done, they SHOULD also apply these requirements to
-       administrative traffic, such as messages to moderators
-       requesting approval of messages.</t>
+      <t>Mediators that reoriginate messages should apply REQUIRETLS requirements
+      in incoming messages (both requiring TLS transmission and requesting
+      that TLS not be required) to the reoriginated messages to the extent
+      feasible.  A limitation to this might be that for a message requiring
+      TLS, redistribution to multiple addresses while retaining the TLS
+      requirement could result in the message not being delivered to some of
+      the intended recipients.</t>
+
+      <t>User-side mediators (such as use of Sieve rules on a user agent)
+      typically do not have access to the SMTP details, and therefore may
+      not be aware of the REQUIRETLS requirement on a delivered message.
+      Recipients that expect sensitive traffic should avoid the use of
+      user-side mediators. Alternatively, if operationally feasible (such as when
+      forwarding to a specific, known address), they should apply REQUIRETLS 
+      to all reoriginated messages that do not contain the "TLS-Required: No" header
+      field.</t>
+
      </section>
 
 
@@ -662,13 +678,13 @@ Specification document:     (this document)
 	   for consistency with the rest of the document.</t>
 	   <t>Remove special handling of bounce messages in Section
 	   4.1.</t>
-	   <t>Make suggestion to educate users on mailing lists in
-	   Section 6 non-normative.</t>
 	   <t>Change name of header field from RequireTLS to
 	   TLS-Required and make capitalization of parameter
 	   consistent.</t>
 	   <t>Remove mention of transforming RET=FULL to RET=HDRS on
 	   relay in Section 5.</t>
+     <t>Replace Section 6 dealing with mailing lists with a more
+      general section on reorigination by mediators.</t>
 
 	 </list></t>
        </section>
@@ -889,6 +905,8 @@ Specification document:     (this document)
      &RFC2033;
      &RFC3501;
      &RFC4880;
+     &RFC5228;
+     &RFC5598;
      &RFC5751;
      &RFC6409;
      
