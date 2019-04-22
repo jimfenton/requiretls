@@ -654,14 +654,28 @@ Specification document:     (this document)
 	 such as <xref target="RFC4880">OpenPGP</xref> or <xref
 	 target="RFC5751">S/MIME</xref>.</t>
        </section>
-   </section>
+
+       <section anchor="conflicts" title="Policy Conflicts">
+
+        <t>In some cases, the use of the TLS-Required header field may conflict
+with a recipient domain policy expressed through the <xref
+target="RFC7672">DANE</xref> or <xref target="RFC8461">MTA-STS</xref> protocols.
+Although these protocols encourage the use of TLS transport by advertising
+availability of TLS, the use of "TLS-Required: No" header field represents an
+explicit decision on the part of the sender not to require the use of TLS, such
+as to overcome a configuration error. The recipient domain has the ultimate
+ability to require TLS by not accepting messages when STARTTLS has not been
+negotiated; otherwise, "TLS-Required: No" is effectively directing the client
+MTA to behave as if it does not support DANE nor MTA-STS.</t>
+      </section>
+    </section>
 
    <section anchor="acknowledgements" title="Acknowledgements">
      <t>The author would like to acknowledge many helpful suggestions
      on the ietf-smtp and uta mailing lists, in particular those of
      Viktor Dukhovni, Chris Newman, Tony Finch, Jeremy Harris, Arvel
-     Hathcock, John Klensin, John Levine, Rolf Sonneveld, and Per
-     Thorsheim.</t>
+     Hathcock, John Klensin, Barry Leiba, John Levine, Rolf Sonneveld,
+     and Per Thorsheim.</t>
 
    </section>
 
