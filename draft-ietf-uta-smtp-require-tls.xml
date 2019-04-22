@@ -747,8 +747,8 @@ MTA to behave as if it does not support DANE nor MTA-STS.</t>
        <section title="Changes since -02 Draft">
 	 <t><list style="symbols">
 	   <t>More complete documentation for IANA registration requests.</t>
-	   <t>Changed bounce handling to use RET parameters of RFC
-	   3461, along with slightly more liberal transmission of
+	   <t>Changed bounce handling to use RET parameters of <xref
+     target="RFC3461"></xref>, along with slightly more liberal transmission of
 	   bounces even if REQUIRETLS can't be negotiated.</t>
 	 </list></t>
        </section>
