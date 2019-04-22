@@ -56,7 +56,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-07a" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-08" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -684,7 +684,7 @@ MTA to behave as if it does not support DANE nor MTA-STS.</t>
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
 
        <section title="Changes since -07 Draft">
-	 <t>Changes in response to IETF Last Call comments:</t>
+	 <t>Changes in response to IESG review and IETF Last Call comments:</t>
 	 <t><list style="symbols">
 	   <t>Change associated status code for 5.7.YYY from 530 to
 	   550.</t>
@@ -699,6 +699,7 @@ MTA to behave as if it does not support DANE nor MTA-STS.</t>
 	   relay in Section 5.</t>
      <t>Replace Section 6 dealing with mailing lists with a more
       general section on reorigination by mediators.</t>
+      <t>Add security considerations section on policy conflicts.</t>
 
 	 </list></t>
        </section>
