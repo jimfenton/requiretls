@@ -19,7 +19,6 @@
 <!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
 <!ENTITY RFC5322 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5322.xml">
 <!ENTITY RFC5598 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5598.xml">
-<!ENTITY RFC5751 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5751.xml">
 <!ENTITY RFC3207 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3207.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
 <!ENTITY RFC6409 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6409.xml">
@@ -30,6 +29,7 @@
 <!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
 <!ENTITY RFC8314 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8314.xml">
 <!ENTITY RFC8461 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8461.xml">
+<!ENTITY RFC8551 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8551.xml">
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 <!-- used by XSLT processors -->
@@ -56,7 +56,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-08" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-uta-smtp-require-tls-09" ipr="trust200902">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902
@@ -353,7 +353,10 @@
 	 <t>Establish a TLS-protected SMTP session with its peer SMTP
 	 server and authenticate the server's certificate as specified
 	 in <xref target="RFC6125"></xref> or <xref
-	 target="RFC7672"></xref> as applicable.</t>
+	 target="RFC7672"></xref> as applicable. The hostname from the 
+   MX record lookup (or the domain name in the absence of an MX
+   record where an A record is used directly) MUST match the DNS-ID
+   or CN-ID of the certificate presented by the server.</t>
 
 	 <t>Ensure that the response to the subsequent EHLO following
 	 establishment of the TLS protection advertises the REQUIRETLS
@@ -428,7 +431,7 @@
 
      <section anchor="submission" title="REQUIRETLS Submission">
        <t>An MUA or other agent making the initial introduction of a
-       message has authority to decide whether to require TLS. When
+       message has the option to decide whether to require TLS. If
        TLS is to be required, it MUST do so by negotiating STARTTLS
        and REQUIRETLS and include the REQUIRETLS option on the MAIL
        FROM command, as is done for message relay.</t>
@@ -652,7 +655,7 @@ Specification document:     (this document)
 	 containing sensitive information that MTAs should not have
 	 access to MUST be sent using end-to-end content encryption
 	 such as <xref target="RFC4880">OpenPGP</xref> or <xref
-	 target="RFC5751">S/MIME</xref>.</t>
+	 target="RFC8551">S/MIME</xref>.</t>
        </section>
 
        <section anchor="conflicts" title="Policy Conflicts">
@@ -682,6 +685,16 @@ MTA to behave as if it does not support DANE nor MTA-STS.</t>
      <section anchor="history" title="Revision History">
 
        <t>To be removed by RFC Editor upon publication as an RFC.</t>
+
+       <section title="Changes since -08 Draft">
+      <t>Additional changes in response to IESG review:</t>
+      <t><list style="symbols">
+        <t>Unify wording describing TLS-Required in Appendix A.2.</t>
+        <t>Add specifics on verification of mail server hostnames with
+          certificates.</t>
+        <t>Wording tweak in 4.3 to emphasize optional nature of REQUIRETLS.</t>
+        <t>Update S/MIME reference from RFC 5751 to 8551</t>
+      </list></t></section>
 
        <section title="Changes since -07 Draft">
 	 <t>Changes in response to IESG review and IETF Last Call comments:</t>
@@ -718,7 +731,7 @@ MTA to behave as if it does not support DANE nor MTA-STS.</t>
 	   <t>Correct use of normative language in Section 5.</t>
 	   <t>Clarify case where REQUIRETLS option is used on bounce
 	   messages.</t>
-	   <t>Improve Security Requirements wording to be incusive of
+	   <t>Improve Security Requirements wording to be inclusive of
 	   both SMTP option and header field.</t>
 	 </list></t>
        </section>
@@ -922,8 +935,8 @@ MTA to behave as if it does not support DANE nor MTA-STS.</t>
      &RFC4880;
      &RFC5228;
      &RFC5598;
-     &RFC5751;
      &RFC6409;
+     &RFC8551;
      
    </references>
 
@@ -974,9 +987,9 @@ MTA to behave as if it does not support DANE nor MTA-STS.</t>
        </figure>
      </section>
      <section title="TLS-Required Header Field">
-       <t>The TLS-Required header field is used when the sender of the
-       message wants to override the default policy of the recipient
-       domain to require TLS. It might be used, for example, to allow
+       <t>The TLS-Required header field is used when the sender requests
+       that the mail system not heed a default policy of the recipient
+       domain requiring TLS. It might be used, for example, to allow
        problems with the recipient domain's TLS certificate to be
        reported:</t>
        <figure>
